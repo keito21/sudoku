@@ -456,29 +456,17 @@ function conflictsFor(idx,val){
   return [...new Set(out)];
 }
 
-  function gameOver(){
+//BACK-UP EMERGENCY HAKDOG HAHAHA
+function gameOver(){
+  
   gridEl.style.animation='flashRed 0.4s ease-in-out 3';
   setTimeout(()=> gridEl.style.animation='',1500);
-
-  for(let i=0;i<81;i++){
-    const inp=gridEl.querySelector(`.cell[data-idx="${i}"] input`);
-    inp.readOnly=true;
-  }
-
-  const solved=board.slice(); 
-  solveBoard(solved);
-
-  for(let i=0;i<81;i++){
-    if(board[i]!==solved[i]){
-      const inp=gridEl.querySelector(`.cell[data-idx="${i}"] input`);
-      inp.value=solved[i];
-      inp.parentElement.style.color='#10b981';
-    }
-  }
-
+  for(let i=0;i<81;i++){ const inp=gridEl.querySelector(`.cell[data-idx="${i}"] input`); inp.readOnly=true; }
+  const solved=board.slice(); solveBoard(solved);
+  for(let i=0;i<81;i++){ if(board[i]!==solved[i]){ const inp=gridEl.querySelector(`.cell[data-idx="${i}"] input`); inp.value=solved[i]; inp.parentElement.style.color='#10b981'; }}
   document.getElementById('gameOverModal').style.display = 'flex';
 
-  // ⭐ ADD AUTO-CLEAR BELOW
+  // ⭐ ADD AUTO-CLEAR BELOW sana working
   setTimeout(()=> {
       board = Array(81).fill(0);
       fixed = Array(81).fill(false);
@@ -490,18 +478,7 @@ function conflictsFor(idx,val){
       updateGrid();
       saveState();
       updateStatus("Board auto-cleared after Game Over.");
-  }, 1200);
-}
-
-//BACK-UP EMERGENCY HAKDOG HAHAHA
-//function gameOver(){
-  
-  //gridEl.style.animation='flashRed 0.4s ease-in-out 3';
-  //setTimeout(()=> gridEl.style.animation='',1500);
-  //for(let i=0;i<81;i++){ const inp=gridEl.querySelector(`.cell[data-idx="${i}"] input`); inp.readOnly=true; }
-  //const solved=board.slice(); solveBoard(solved);
-  //for(let i=0;i<81;i++){ if(board[i]!==solved[i]){ const inp=gridEl.querySelector(`.cell[data-idx="${i}"] input`); inp.value=solved[i]; inp.parentElement.style.color='#10b981'; }}
-  //document.getElementById('gameOverModal').style.display = 'flex';
+  }, 1200); //last add
 }
 
 // quick backtracking solver
