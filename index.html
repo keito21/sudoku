@@ -3,90 +3,23 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Game Menu</title>
+  <title>Sudoku Menu</title>
   <style>
-    body{margin:0;font-family:Inter,system-ui;background:#0b1220;color:#e6eef8;display:flex;align-items:center;justify-content:center;height:100vh}
-    .menu{display:flex;flex-direction:column;gap:20px;background:#111a33;padding:30px;border-radius:12px;box-shadow:0 0 20px rgba(0,0,0,0.4);width:300px;text-align:center}
-    h1{margin:0 0 10px;font-size:22px;text-shadow:0 0 8px #ef4444}
-    button{padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:#182648;color:#fff;font-size:16px;cursor:pointer;transition:0.2s}
-    button:hover{background:#22345f;transform:scale(1.03)}
-  
-    /* Game tiles */
-    .game{
-      background:#182648;
-      padding:15px;
-      border-radius:12px;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      gap:8px;
-      cursor:pointer;
-      transition:0.25s;
-      border:1px solid rgba(255,255,255,0.08);
-    }
-
-    .game img{
-      width:80px;
-      height:80px;
-      transition:0.25s;
-    }
-
-    .game span{
-      font-size:16px;
-      font-weight:500;
-    }
-
-    .game:hover{
-      background:#22345f;
-      transform:translateY(-4px) scale(1.05);
-      box-shadow:0 4px 15px rgba(0,0,0,0.35);
-    }
-
-    .game:hover img{
-      transform:scale(1.15);
-      filter:drop-shadow(0 0 6px #4aa3ff);
-    }
-
-    .coming-soon{
-      opacity:0.4;
-      cursor:not-allowed;
-    }
-
-    .coming-soon:hover{
-      transform:none;
-      box-shadow:none;
-      background:#182648;
-    }
-
-    /* Mobile Responsive */
-    @media(max-width:480px){
-      .menu{width:90%;padding:20px}
-      .game img{width:64px;height:64px}
-      h1{font-size:20px}
-    }
-
+    body{margin:0;height:100vh;display:flex;align-items:center;justify-content:center;background:#0b1220;font-family:Inter,system-ui;color:#e6eef8;text-align:center}
+    .card{background:#071328;padding:30px 40px;border-radius:14px;box-shadow:0 0 20px rgba(0,0,0,0.4);animation:fadeIn 0.6s ease}
+    h1{margin:0 0 20px;font-size:24px;text-shadow:0 0 8px #ef4444;animation:glow 2s ease-in-out infinite alternate}
+    button{display:block;width:100%;margin:10px 0;padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:#fff;font-size:16px;cursor:pointer;transition:0.2s}
+    button:hover{background:rgba(255,255,255,0.15)}
+    @keyframes glow{0%{text-shadow:0 0 4px #ef4444;}100%{text-shadow:0 0 14px #ff6666;}}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}
   </style>
 </head>
 <body>
-  <div class="menu">
-    <h1>Select a Game</h1>
-
-    <!-- Sudoku Tile -->
-    <div class="game" onclick="location.href='sudoku_notepad.html'">
-      <img src="https://img.icons8.com/color/96/sudoku.png" alt="Sudoku"/>
-      <span>Sudoku</span>
-    </div>
-
-    <!-- Placeholder Games -->
-    <div class="game coming-soon">
-      <img src="https://img.icons8.com/color/96/joystick.png" alt="Coming Soon"/>
-      <span>Coming Soon</span>
-    </div>
-
-    <div class="game coming-soon">
-      <img src="https://img.icons8.com/color/96/controller.png" alt="Coming Soon"/>
-      <span>Coming Soon</span>
-    </div>
+  <div class="card">
+    <h1>Sudoku Menu</h1>
+    <button onclick="location.href='index.html'">Play</button>
+    <button onclick="alert('Settings coming soon!')">Settings</button>
+    <button onclick="alert('Made by Meeeeeeee koint XD')">Credits</button>
   </div>
 </body>
 </html>
