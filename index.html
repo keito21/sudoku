@@ -5,21 +5,83 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Sudoku Menu</title>
   <style>
-    body{margin:0;height:100vh;display:flex;align-items:center;justify-content:center;background:#0b1220;font-family:Inter,system-ui;color:#e6eef8;text-align:center}
-    .card{background:#071328;padding:30px 40px;border-radius:14px;box-shadow:0 0 20px rgba(0,0,0,0.4);animation:fadeIn 0.6s ease}
-    h1{margin:0 0 20px;font-size:24px;text-shadow:0 0 8px #ef4444;animation:glow 2s ease-in-out infinite alternate}
-    button{display:block;width:100%;margin:10px 0;padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:#fff;font-size:16px;cursor:pointer;transition:0.2s}
-    button:hover{background:rgba(255,255,255,0.15)}
-    @keyframes glow{0%{text-shadow:0 0 4px #ef4444;}100%{text-shadow:0 0 14px #ff6666;}}
-    @keyframes fadeIn{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}
+    :root {
+      --bg:#0b1220;
+      --card:#071328;
+      --accent:#ef4444;
+    }
+    html,body {
+      margin:0;
+      height:100%;
+      font-family: Inter, system-ui, Segoe UI, Roboto, Arial;
+      background: var(--bg);
+      color:#e6eef8;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+    }
+    .menu-box {
+      background: var(--card);
+      padding: 30px 40px;
+      border-radius: 14px;
+      text-align: center;
+      box-shadow: 0 0 20px rgba(255,50,50,0.2);
+      width: 90%;
+      max-width: 360px;
+    }
+    h1 {
+      margin-bottom: 20px;
+      font-size: 22px;
+      text-shadow: 0 0 8px #ef4444;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      background: transparent;
+      color: white;
+      border: 1px solid rgba(255,255,255,0.1);
+      cursor:pointer;
+      font-size: 16px;
+      margin: 10px 0;
+      transition: 0.2s;
+    }
+    button:hover {
+      background: rgba(255,255,255,0.05);
+      border-color: var(--accent);
+    }
+    .footer {
+      margin-top: 14px;
+      font-size: 12px;
+      opacity: 0.5;
+    }
   </style>
 </head>
 <body>
-  <div class="card">
+
+  <div class="menu-box">
     <h1>Sudoku Menu</h1>
-    <button onclick="location.href='index.html'">Play</button>
-    <button onclick="alert('Settings coming soon!')">Settings</button>
-    <button onclick="alert('Made by Meeeeeeee koint XD')">Credits</button>
+
+    <button onclick="startGame()">Start Game</button>
+    <button onclick="openHow()">How to Play</button>
+    <button onclick="openCredits()">Credits</button>
+
+    <div class="footer">By Meeeeeeee koint XD</div>
   </div>
+
+<script>
+function startGame(){
+  window.location.href = "index.html"; // your Sudoku file name
+}
+
+function openHow(){
+  alert("Fill the grid so each row, column, and 3×3 box contains 1–9.\nUse notes, hints (3 max), and avoid mistakes!");
+}
+
+function openCredits(){
+  alert("Sudoku Web Version by: koint XD\nAll features coded fresh, single-file style.");
+}
+</script>
+
 </body>
 </html>
