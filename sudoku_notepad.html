@@ -48,11 +48,11 @@
         <div class="small">Editable cells are highlighted red • Auto-save & mobile-ready</div>
       </div>
       <div class="controls">
+        <button id="backBtn">Back</button>
         <select id="difficulty"><option value="36">Easy</option><option value="30" selected>Medium</option><option value="24">Hard</option></select>
         <button id="newBtn">New</button>
         <button id="hintBtn">Hint</button>
         <button id="clearBtn">Clear</button>
-        <a href="index.html" id="backBtn">⟵ Back to Menu</a>
         <label style="display:inline-flex;align-items:center;gap:6px"><input id="themeToggle" type="checkbox">Dark</label>
       </div>
     </header>
@@ -344,6 +344,8 @@ function updateHintStars(){
   else { hb.disabled=false; hb.style.opacity='1'; hb.style.cursor='pointer'; }
 }
 
+updateHintStars();
+
 document.getElementById('hintBtn').addEventListener('click', giveHint);
 
 // import/export
@@ -433,6 +435,11 @@ document.addEventListener('DOMContentLoaded',()=>{
 const style=document.createElement('style');
 style.textContent=`@keyframes flashRed{0%{filter:none;}50%{filter:brightness(3) hue-rotate(-30deg);}100%{filter:none;}}`;
 document.head.appendChild(style);
+
+// back button handler
+document.getElementById('backBtn').addEventListener('click',()=>{
+  window.location.href = 'menu.html'; // change if you have a different menu page
+});
 
 // expose some functions for debugging in console
 window._sudoku = {board,fixed,notes,saveState,loadState,updateGrid};
