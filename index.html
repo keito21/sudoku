@@ -1,3 +1,4 @@
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
@@ -9,14 +10,83 @@
     h1{margin:0 0 10px;font-size:22px;text-shadow:0 0 8px #ef4444}
     button{padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:#182648;color:#fff;font-size:16px;cursor:pointer;transition:0.2s}
     button:hover{background:#22345f;transform:scale(1.03)}
+  
+    /* Game tiles */
+    .game{
+      background:#182648;
+      padding:15px;
+      border-radius:12px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:8px;
+      cursor:pointer;
+      transition:0.25s;
+      border:1px solid rgba(255,255,255,0.08);
+    }
+
+    .game img{
+      width:80px;
+      height:80px;
+      transition:0.25s;
+    }
+
+    .game span{
+      font-size:16px;
+      font-weight:500;
+    }
+
+    .game:hover{
+      background:#22345f;
+      transform:translateY(-4px) scale(1.05);
+      box-shadow:0 4px 15px rgba(0,0,0,0.35);
+    }
+
+    .game:hover img{
+      transform:scale(1.15);
+      filter:drop-shadow(0 0 6px #4aa3ff);
+    }
+
+    .coming-soon{
+      opacity:0.4;
+      cursor:not-allowed;
+    }
+
+    .coming-soon:hover{
+      transform:none;
+      box-shadow:none;
+      background:#182648;
+    }
+
+    /* Mobile Responsive */
+    @media(max-width:480px){
+      .menu{width:90%;padding:20px}
+      .game img{width:64px;height:64px}
+      h1{font-size:20px}
+    }
+
   </style>
 </head>
 <body>
   <div class="menu">
     <h1>Select a Game</h1>
-    <button onclick="location.href='sudoku_notepad.html'">Sudoku</button>
-    <button disabled>Coming Soon</button>
-    <button disabled>Coming Soon</button>
+
+    <!-- Sudoku Tile -->
+    <div class="game" onclick="location.href='sudoku_notepad.html'">
+      <img src="https://img.icons8.com/color/96/sudoku.png" alt="Sudoku"/>
+      <span>Sudoku</span>
+    </div>
+
+    <!-- Placeholder Games -->
+    <div class="game coming-soon">
+      <img src="https://img.icons8.com/color/96/joystick.png" alt="Coming Soon"/>
+      <span>Coming Soon</span>
+    </div>
+
+    <div class="game coming-soon">
+      <img src="https://img.icons8.com/color/96/controller.png" alt="Coming Soon"/>
+      <span>Coming Soon</span>
+    </div>
   </div>
 </body>
 </html>
