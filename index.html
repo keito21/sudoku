@@ -1,87 +1,248 @@
+<!-- Uploaded asset path (for your tooling): /mnt/data/05f17cc6-a56b-4fea-a7f2-5ac530f52e66.png -->
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Sudoku Menu</title>
+  <title>Sudoku Menu — Dark / Light</title>
   <style>
-    :root {
-      --bg:#0b1220;
-      --card:#071328;
-      --accent:#ef4444;
+    :root{
+      /* DARK THEME (defaults) */
+      --bg: #0b1220;
+      --card: #071328;
+      --text: #e6eef8;
+      --muted: #94a3b8;
+      --accent: #ef4444;
+      --shadow: rgba(239,68,68,0.12);
+      --glass: rgba(255,255,255,0.02);
     }
-    html,body {
-      margin:0;
-      height:100%;
-      font-family: Inter, system-ui, Segoe UI, Roboto, Arial;
-      background: var(--bg);
-      color:#e6eef8;
-      display:flex;
-      justify-content:center;
-      align-items:center;
+    /* LIGHT THEME (Option A - Soft White) */
+    .light {
+      --bg: #f3f4f6;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --accent: #ef4444;
+      --shadow: rgba(14,165,233,0.06);
+      --glass: rgba(0,0,0,0.03);
     }
-    .menu-box {
-      background: var(--card);
-      padding: 30px 40px;
-      border-radius: 14px;
-      text-align: center;
-      box-shadow: 0 0 20px rgba(255,50,50,0.2);
-      width: 90%;
-      max-width: 360px;
+
+    *{box-sizing:border-box}
+    html,body{
+      margin:0;height:100%;font-family:Inter,system-ui,Segoe UI,Roboto,Arial, Helvetica;
+      background:var(--bg);color:var(--text);display:flex;align-items:center;justify-content:center;
+      transition: background 250ms ease, color 250ms ease;
     }
-    h1 {
-      margin-bottom: 20px;
-      font-size: 22px;
-      text-shadow: 0 0 8px #ef4444;
+
+    .menu-box{
+      width:95%;max-width:420px;background:linear-gradient(180deg,var(--card),color-mix(in srgb, var(--card) 82%, transparent));
+      border-radius:14px;padding:26px;box-shadow:0 10px 30px var(--shadow);position:relative;overflow:hidden;
+      transition: background 250ms ease, box-shadow 250ms ease;
     }
-    button {
-      width: 100%;
-      padding: 12px;
-      border-radius: 10px;
-      background: transparent;
-      color: white;
-      border: 1px solid rgba(255,255,255,0.1);
-      cursor:pointer;
-      font-size: 16px;
-      margin: 10px 0;
-      transition: 0.2s;
+
+    header.menu-header{
+      display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;
     }
-    button:hover {
-      background: rgba(255,255,255,0.05);
-      border-color: var(--accent);
+    .brand{
+      display:flex;flex-direction:column;gap:4px;
     }
-    .footer {
-      margin-top: 14px;
-      font-size: 12px;
-      opacity: 0.5;
+    .brand h1{margin:0;font-size:20px;letter-spacing:0.2px;text-shadow:0 0 8px rgba(239,68,68,0.12)}
+    .brand .sub{font-size:12px;color:var(--muted)}
+
+    /* Toggle switch (Option 2 - iOS style) */
+    .toggle-wrap{display:flex;align-items:center;gap:10px}
+    .theme-label{font-size:13px;color:var(--muted)}
+    .switch{
+      width:48px;height:28px;border-radius:999px;background:rgba(255,255,255,0.06);position:relative;border:1px solid rgba(0,0,0,0.06);cursor:pointer;
+      transition: background 180ms ease, border-color 180ms ease;
     }
+    .switch input{display:none}
+    .knob{
+      position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:white;transform:translateX(0);transition:transform 200ms cubic-bezier(.2,.9,.2,1), background 200ms;
+      box-shadow:0 6px 12px rgba(2,6,23,0.25);
+    }
+    .switch[data-on="true"]{background:linear-gradient(90deg,var(--accent), color-mix(in srgb, var(--accent) 50%, #ff8a8a));}
+    .switch[data-on="true"] .knob{transform:translateX(20px); background: #fff}
+    .switch .icon{
+      position:absolute;top:50%;left:8px;transform:translateY(-50%);font-size:12px;opacity:0.9;pointer-events:none;
+    }
+    .switch[data-on="true"] .icon{left:unset; right:8px}
+
+    /* Buttons */
+    .btn{
+      width:100%;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);
+      background:transparent;color:var(--text);font-size:15px;margin:10px 0;cursor:pointer;transition:all 160ms;
+    }
+    .btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,0.08)}
+    .btn.primary{background:linear-gradient(90deg,var(--accent), color-mix(in srgb, var(--accent) 50%, #ff8a8a));color:#fff;border:0}
+
+    .footer{margin-top:10px;font-size:12px;color:var(--muted);text-align:center}
+
+    /* MODAL overlay */
+    .modal-bg{
+      position:fixed;inset:0;display:none;align-items:flex-end;justify-content:center;background:linear-gradient(rgba(0,0,0,0.4),rgba(0,0,0,0.35));
+      z-index:60;backdrop-filter: blur(4px);
+    }
+    .modal-card{
+      width:100%;max-width:420px;background:var(--card);border-radius:16px 16px 0 0;padding:18px;box-shadow:0 -6px 40px var(--shadow);
+      transform: translateY(100%);opacity:0;transition: transform 300ms cubic-bezier(.2,.9,.25,1), opacity 260ms;
+      will-change: transform, opacity;
+    }
+    .modal-card.show{
+      transform: translateY(0%);opacity:1;
+    }
+    .modal-title{font-size:18px;margin:0 0 8px}
+    .modal-body{font-size:14px;color:var(--muted);line-height:1.5}
+
+    /* little handle for modal */
+    .handle{width:48px;height:6px;background:rgba(255,255,255,0.06);margin:0 auto 12px;border-radius:6px}
+
+    /* responsive */
+    @media(min-width:640px){
+      .modal-bg{align-items:center}
+      .modal-card{border-radius:12px;padding:20px;max-width:360px}
+    }
+
+    /* smooth theme transition for contents */
+    .smooth{transition: color 220ms ease, background 220ms ease, border-color 220ms ease, box-shadow 220ms ease}
   </style>
 </head>
 <body>
+  <main class="menu-box smooth" role="main" aria-labelledby="menuTitle">
+    <header class="menu-header">
+      <div class="brand">
+        <h1 id="menuTitle">Sudoku Menu</h1>
+        <div class="sub">Fresh single-file Sudoku • Mobile-ready</div>
+      </div>
 
-  <div class="menu-box">
-    <h1>Sudoku Menu</h1>
+      <div class="toggle-wrap smooth" aria-hidden="false">
+        <div class="theme-label">Theme</div>
+        <div id="themeSwitch" class="switch" role="switch" aria-checked="false" data-on="false" tabindex="0">
+          <span class="icon">🌙</span>
+          <span class="knob"></span>
+        </div>
+      </div>
+    </header>
 
-    <button onclick="startGame()">Start Game</button>
-    <button onclick="openHow()">How to Play</button>
-    <button onclick="openCredits()">Credits</button>
+    <section>
+      <button class="btn primary" onclick="startGame()">Start Game</button>
+      <button class="btn" onclick="showModal('how')">How to Play</button>
+      <button class="btn" onclick="showModal('credits')">Credits</button>
+      <div class="footer">By Meeeeeeee koint XD</div>
+    </section>
+  </main>
 
-    <div class="footer">By Meeeeeeee koint XD</div>
+  <!-- HOW modal (slide-in) -->
+  <div id="howModal" class="modal-bg" onclick="overlayClick(event,'how')">
+    <div class="modal-card smooth" role="dialog" aria-modal="true" aria-labelledby="howTitle">
+      <div class="handle"></div>
+      <h3 id="howTitle" class="modal-title">How to Play</h3>
+      <div class="modal-body">
+        Fill the grid so every row, column and 3×3 box contains the digits 1–9 with no repeats.<br><br>
+        • Use <b>Notes</b> to pencil possibilities.<br>
+        • Avoid mistakes — there's a mistake limit you can set in-game.<br>
+        • You have <b>3 hints max</b>. Hints fill one correct cell.<br><br>
+        <div style="text-align:center;margin-top:8px">
+          <button class="btn primary" onclick="hideModal('how')">Got it</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CREDITS modal (slide-in) -->
+  <div id="creditsModal" class="modal-bg" onclick="overlayClick(event,'credits')">
+    <div class="modal-card smooth" role="dialog" aria-modal="true" aria-labelledby="creditsTitle">
+      <div class="handle"></div>
+      <h3 id="creditsTitle" class="modal-title">Credits</h3>
+      <div class="modal-body">
+        Sudoku Web Version — single-file design.<br>
+        Made by <b>koint XD</b>.<br><br>
+        Built with simple HTML/CSS/JS — no external libraries.<br><br>
+        <div style="text-align:center;margin-top:8px">
+          <button class="btn primary" onclick="hideModal('credits')">Close</button>
+        </div>
+      </div>
+    </div>
   </div>
 
 <script>
+/* ---------- Navigation ---------- */
 function startGame(){
-  window.location.href = "sudoku_notepad.html"; // your Sudoku file name
+  // your sudoku file
+  window.location.href = 'sudoku_notepad.html';
 }
 
-function openHow(){
-  alert("Fill the grid so each row, column, and 3×3 box contains 1–9.\nUse notes, hints (3 max), and avoid mistakes!");
+/* ---------- Modal handling (slide-up) ---------- */
+function showModal(which){
+  const modal = which === 'how' ? document.getElementById('howModal') : document.getElementById('creditsModal');
+  const card = modal.querySelector('.modal-card');
+  modal.style.display = 'flex';
+  // ensure reflow before adding show class
+  requestAnimationFrame(()=> card.classList.add('show'));
+  // trap focus (basic)
+  setTimeout(()=> { card.querySelector('button').focus(); }, 250);
+  // for accessibility
+  modal.setAttribute('aria-hidden', 'false');
+}
+function hideModal(which){
+  const modal = which === 'how' ? document.getElementById('howModal') : document.getElementById('creditsModal');
+  const card = modal.querySelector('.modal-card');
+  card.classList.remove('show');
+  modal.setAttribute('aria-hidden','true');
+  // wait for animation then hide
+  setTimeout(()=> { modal.style.display='none'; }, 320);
+}
+function overlayClick(e, which){
+  if(e.target.classList.contains('modal-bg')) hideModal(which);
 }
 
-function openCredits(){
-  alert("Sudoku Web Version by: koint XD\nAll features coded fresh, single-file style.");
+/* ---------- Theme toggle (iOS style) ---------- */
+const switchEl = document.getElementById('themeSwitch');
+const rootEl = document.documentElement;
+const bodyEl = document.body;
+
+// load saved preference
+const saved = localStorage.getItem('sudoku_theme');
+let isLight = saved ? saved === 'light' : false;
+applyTheme(isLight, false);
+
+// keyboard / click interactions on the custom switch
+switchEl.addEventListener('click', toggleTheme);
+switchEl.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' ') { e.preventDefault(); toggleTheme(); } });
+
+function toggleTheme(){
+  isLight = !isLight; applyTheme(isLight, true);
 }
+
+function applyTheme(light, save){
+  if(light){
+    document.documentElement.classList.add('light');
+    switchEl.setAttribute('data-on','true');
+    switchEl.setAttribute('aria-checked','true');
+    switchEl.querySelector('.icon').textContent = '☀';
+  } else {
+    document.documentElement.classList.remove('light');
+    switchEl.setAttribute('data-on','false');
+    switchEl.setAttribute('aria-checked','false');
+    switchEl.querySelector('.icon').textContent = '🌙';
+  }
+  // store
+  if(save) localStorage.setItem('sudoku_theme', light ? 'light' : 'dark');
+}
+
+/* ---------- Make modals accessible to ESC key ---------- */
+document.addEventListener('keydown', (e)=>{
+  if(e.key === 'Escape'){
+    const how = document.getElementById('howModal'), credits = document.getElementById('creditsModal');
+    if(how.style.display === 'flex') hideModal('how');
+    if(credits.style.display === 'flex') hideModal('credits');
+  }
+});
+
+/* ---------- Optional: close modals when route changes / navigate away ---------- */
+window.addEventListener('beforeunload', ()=> {
+  // nothing special — theme is saved immediately on toggle
+});
 </script>
-
 </body>
 </html>
