@@ -379,7 +379,7 @@ function conflictsFor(idx,val){
 }
 
 function gameOver(){
-  const snd=document.getElementById('gameOverSound'); if(snd) snd.play();
+  
   gridEl.style.animation='flashRed 0.4s ease-in-out 3';
   setTimeout(()=> gridEl.style.animation='',1500);
   for(let i=0;i<81;i++){ const inp=gridEl.querySelector(`.cell[data-idx="${i}"] input`); inp.readOnly=true; }
@@ -420,7 +420,7 @@ document.head.appendChild(style);
 window._sudoku = {board,fixed,notes,saveState,loadState,updateGrid};
 
 </script>
-<audio id="gameOverSound" src="gameover.mp3"></audio>
+
 <!-- Game Over Modal -->
 <div id="gameOverModal" style="position:fixed;inset:0;background:rgba(0,0,0,0.65);display:none;align-items:center;justify-content:center;z-index:9999">
   <div style="background:#1a1a2e;padding:20px 26px;border-radius:10px;text-align:center;max-width:320px;width:90%;box-shadow:0 0 20px #ff4444">
