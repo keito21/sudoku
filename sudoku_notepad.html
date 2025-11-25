@@ -437,8 +437,12 @@ style.textContent=`@keyframes flashRed{0%{filter:none;}50%{filter:brightness(3) 
 document.head.appendChild(style);
 
 // back button handler
-document.getElementById('backBtn').addEventListener('click',()=>{
-  window.location.href = 'menu.html'; // change if you have a different index/menu page
+  function goBackToMenu() {
+    window.location.href = "menu.html";
+}//new add 3:17pm
+
+//document.getElementById('backBtn').addEventListener('click',()=>{
+  //window.location.href = 'menu.html'; // change if you have a different menu page
 });
 
 // expose some functions for debugging in console
