@@ -50,6 +50,7 @@
       <div class="controls">
         <select id="difficulty"><option value="36">Easy</option><option value="30" selected>Medium</option><option value="24">Hard</option></select>
         <button id="newBtn">New</button>
+        <button id="hintBtn">Hint</button>
         <button id="clearBtn">Clear</button>
         <label style="display:inline-flex;align-items:center;gap:6px"><input id="themeToggle" type="checkbox">Dark</label>
       </div>
@@ -108,7 +109,8 @@ let mistakeCount = 0;
 let mistakeLimit = Number(document.getElementById('mistakeLimit').value) || 0;
 
 function updateStatus(t){ statusEl.childNodes[0] && statusEl.childNodes[0].nodeType===3 ? statusEl.childNodes[0].textContent = t : statusEl.childNodes[0]; }
-function setMistake(n){ mistakeCount = n; mistakesEl.textContent = mistakeCount; if(mistakeLimit>0 && mistakeCount>=mistakeLimit){ alert('Mistake limit reached'); }}
+function setMistake(n){ mistakeCount = n; mistakesEl.textContent = mistakeCount; if(mistakeLimit>0 && mistakeCount>=mistakeLimit){ alert('Mistake limit reached');
+     }}
 
 // create grid and inputs
 function createGrid(){
@@ -205,6 +207,7 @@ function markIfWrong(idx){
   if(conflicts.length){ cell.classList.add('wrong'); // vibrate if available
     if(navigator.vibrate) navigator.vibrate(80);
     setMistake(mistakeCount+1);
+    if(mistakeLimit>0 && mistakeCount+1>=mistakeLimit){ gameOver(); }
     // optionally highlight conflicts briefly
     conflicts.forEach(p=>{ const c=gridEl.querySelector(`.cell[data-idx="${p}"]`); c && c.classList.add('wrong'); setTimeout(()=>c && c.classList.remove('wrong'),500); });
   } else {
@@ -235,6 +238,7 @@ function isValidOn(b,pos,val){
   for(let dr=0;dr<3;dr++) for(let dc=0;dc<3;dc++) if(b[(br+dr)*9+(bc+dc)]===val) return false;
   return true;
 }
+
 
 // simple solver used for uniqueness checking (backtracking, returns count up to 2)
 function countSolutions(puzzle){
@@ -310,6 +314,20 @@ document.getElementById('numpad').addEventListener('click', e=>{
 // notes toggle button kept above; also keyboard N to toggle
 document.addEventListener('keydown', e=>{ if(e.key.toLowerCase()==='n'){ showNotes=!showNotes; renderNotes(); updateStatus(showNotes? 'Notes ON':'Notes OFF'); } });
 
+// Hint system
+function giveHint(){
+  const solved=board.slice(); solveBoard(solved);
+  const empties = board.map((v,i)=>v===0?i:null).filter(v=>v!==null);
+  if(empties.length===0) return updateStatus('No empty cells.');
+  const idx = empties[Math.floor(Math.random()*empties.length)];
+  board[idx]=solved[idx];
+  const inp=gridEl.querySelector(`.cell[data-idx="${idx}"] input`);
+  inp.value=solved[idx]; inp.parentElement.style.color='var(--good)';
+  saveState(); updateStatus('Hint used.');
+}
+
+document.getElementById('hintBtn').addEventListener('click', giveHint);
+
 // import/export
 document.getElementById('exportBtn').addEventListener('click', ()=>{
   const txt = board.map(x=>x?x:'.').join(''); const blob = new Blob([txt],{type:'text/plain'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='sudoku.txt'; a.click(); URL.revokeObjectURL(a.href); updateStatus('Exported.');
@@ -360,9 +378,56 @@ function conflictsFor(idx,val){
   return [...new Set(out)];
 }
 
+function gameOver(){
+  const snd=document.getElementById('gameOverSound'); if(snd) snd.play();
+  gridEl.style.animation='flashRed 0.4s ease-in-out 3';
+  setTimeout(()=> gridEl.style.animation='',1500);
+  for(let i=0;i<81;i++){ const inp=gridEl.querySelector(`.cell[data-idx="${i}"] input`); inp.readOnly=true; }
+  const solved=board.slice(); solveBoard(solved);
+  for(let i=0;i<81;i++){ if(board[i]!==solved[i]){ const inp=gridEl.querySelector(`.cell[data-idx="${i}"] input`); inp.value=solved[i]; inp.parentElement.style.color='#10b981'; }}
+  document.getElementById('gameOverModal').style.display = 'flex';
+}
+
+// quick backtracking solver
+function solveBoard(b){
+  function s(pos){
+    if(pos>=81) return true;
+    if(b[pos]!==0) return s(pos+1);
+    for(let n=1;n<=9;n++){
+      if(isValidOn(b,pos,n)){
+        b[pos]=n;
+        if(s(pos+1)) return true;
+        b[pos]=0;
+      }
+    }
+    return false;
+  }
+  s(0);
+}
+
+// restart handler
+document.addEventListener('DOMContentLoaded',()=>{
+  const r=document.getElementById('restartBtn');
+  if(r){ r.onclick=()=>{ location.reload(); }; }
+});
+
+/* flash animation */
+const style=document.createElement('style');
+style.textContent=`@keyframes flashRed{0%{filter:none;}50%{filter:brightness(3) hue-rotate(-30deg);}100%{filter:none;}}`;
+document.head.appendChild(style);
+
 // expose some functions for debugging in console
 window._sudoku = {board,fixed,notes,saveState,loadState,updateGrid};
 
 </script>
+<audio id="gameOverSound" src="gameover.mp3"></audio>
+<!-- Game Over Modal -->
+<div id="gameOverModal" style="position:fixed;inset:0;background:rgba(0,0,0,0.65);display:none;align-items:center;justify-content:center;z-index:9999">
+  <div style="background:#1a1a2e;padding:20px 26px;border-radius:10px;text-align:center;max-width:320px;width:90%;box-shadow:0 0 20px #ff4444">
+    <h2 style="margin:0 0 10px;font-size:20px;color:#ff7777">GAME OVER</h2>
+    <p style="margin:0 0 16px;color:#ddd">You reached the mistake limit.</p>
+    <button id="restartBtn" style="padding:8px 14px;border-radius:6px;border:1px solid #ff4444;background:#ff4444;color:#fff;cursor:pointer">Restart</button>
+  </div>
+</div>
 </body>
 </html>
