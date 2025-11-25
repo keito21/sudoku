@@ -82,7 +82,7 @@
             <button id="exportBtn">Export TXT</button>
           </div>
           <textarea id="notepad" placeholder="Paste puzzle here..."></textarea>
-          <div class="status" id="status">Ready. Mistakes: <span id="mistakes">0</span></div>
+          <div class="status" id="status">Ready. Mistakes: <span id="mistakes">0</span> • Hints: <span id="hints">0</span>/3 <span id="hintStars">⭐⭐⭐</span></div>
           <div style="margin-top:8px">
             <label class="small"><input type="checkbox" id="uniqueCheck"> Try to generate unique-solution puzzles (slower)</label>
           </div>
@@ -103,6 +103,7 @@ const mistakesEl = document.getElementById('mistakes');
 let board = Array(81).fill(0);
 let fixed = Array(81).fill(false);
 let notes = Array.from({length:81},()=>new Set()); // pencil marks
+let hintCount = 0; // *** added hint counter *** Array.from({length:81},()=>new Set()); // pencil marks
 let showNotes = false;
 let activeCell = null;
 let mistakeCount = 0;
@@ -288,6 +289,8 @@ document.getElementById('newBtn').addEventListener('click', ()=>{
   const unique = document.getElementById('uniqueCheck').checked;
   setTimeout(()=>{
     board = makePuzzle(clues, unique);
+    hintCount = 0; document.getElementById('hints').textContent = hintCount;
+    updateHintStars(); // reset hints on new puzzle
     fixed = board.map(x=>x?true:false);
     notes = Array.from({length:81},()=>new Set());
     setMistake(0);
@@ -316,14 +319,28 @@ document.addEventListener('keydown', e=>{ if(e.key.toLowerCase()==='n'){ showNot
 
 // Hint system
 function giveHint(){
-  const solved=board.slice(); solveBoard(solved);
+  if(hintCount >= 3){ updateStatus('No hints left (3/3).'); return; }
+  const solved = board.slice(); solveBoard(solved);
   const empties = board.map((v,i)=>v===0?i:null).filter(v=>v!==null);
   if(empties.length===0) return updateStatus('No empty cells.');
   const idx = empties[Math.floor(Math.random()*empties.length)];
-  board[idx]=solved[idx];
-  const inp=gridEl.querySelector(`.cell[data-idx="${idx}"] input`);
-  inp.value=solved[idx]; inp.parentElement.style.color='var(--good)';
-  saveState(); updateStatus('Hint used.');
+  board[idx] = solved[idx];
+  const inp = gridEl.querySelector(`.cell[data-idx="${idx}"] input`);
+  inp.value = solved[idx]; inp.parentElement.style.color='var(--good)';
+  hintCount++; document.getElementById('hints').textContent = hintCount;
+  updateHintStars(); updateStatus(`Hint used (${hintCount}/3).`);
+  saveState();
+}
+
+
+function updateHintStars(){
+  const stars = ['☆','⭐','⭐⭐','⭐⭐⭐'];
+  const colors = ['#555','#38bdf8','#fbbf24','#22c55e'];
+  document.getElementById('hintStars').textContent = stars[3-hintCount];
+  document.getElementById('hintStars').style.color = colors[hintCount];
+  const hb = document.getElementById('hintBtn');
+  if(hintCount>=3){ hb.disabled=true; hb.style.opacity='0.4'; hb.style.cursor='not-allowed'; }
+  else { hb.disabled=false; hb.style.opacity='1'; hb.style.cursor='pointer'; }
 }
 
 document.getElementById('hintBtn').addEventListener('click', giveHint);
