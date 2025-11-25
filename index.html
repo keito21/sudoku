@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Sudoku — Fresh Single File - By Meeeeeeee koint XD</title>
+  <style>
+    :root{--bg:#0b1220;--card:#071328;--accent:#ef4444;--muted:#94a3b8;--cell:#0f1724}
+    html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;background:linear-gradient(180deg,#071024,#0b1220);color:#e6eef8}
+    .wrap{max-width:900px;margin:28px auto;padding:18px;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);border-radius:12px}
+    header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    h1{font-size:18px;margin:0;animation:glow 2s ease-in-out infinite alternate;}
+    .controls{display:flex;gap:8px}
+    button,select{background:transparent;border:1px solid rgba(255,255,255,0.04);color:inherit;padding:8px 10px;border-radius:8px;cursor:pointer}
+    .board{display:flex;gap:18px;margin-top:14px}
+    .grid{display:grid;grid-template-columns:repeat(9,44px);grid-auto-rows:44px;gap:0;background:var(--card);padding:12px;border-radius:10px;border:3px solid rgba(255,255,255,0.25)}
+    .cell{border:1px solid rgba(255,255,255,0.10);width:44px;height:44px;border-radius:6px;display:flex;align-items:center;justify-content:center;background:var(--cell);}
+    .cell input{width:100%;height:100%;text-align:center;border-radius:6px;border:0;background:transparent;color:inherit;font-size:18px}
+    .cell.editable{background:rgba(239,68,68,0.16)} /* editable cells colored red */
+    .cell.fixed{background:transparent;color:#cbd5e1}
+    .thick-col{border-right:4px solid #ef4444}
+    .thick-row{border-bottom:4px solid #ef4444}
+    .sidebar{width:300px}
+    .panel{background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);padding:12px;border-radius:8px}
+    textarea{width:100%;height:120px;border-radius:8px;padding:8px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:inherit}
+    .status{margin-top:8px;color:var(--muted);font-size:13px}
+    @media(max-width:900px){.board{flex-direction:column}.sidebar{width:100%}.grid{justify-content:center}}
+  @keyframes glow{0%{text-shadow:0 0 4px #ef4444;}100%{text-shadow:0 0 14px #ff6666;}}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Sudoku — Fresh Single File - By Meeeeeeee koint XD</h1>
+        <div style="font-size:13px;color:var(--muted)">Editable cells are highlighted red.</div>
+      </div>
+      <div class="controls">
+        <select id="difficulty"><option value="36">Easy</option><option value="30" selected>Medium</option><option value="24">Hard</option></select>
+        <button id="newBtn">New</button>
+        <button id="solveBtn">Solve</button>
+        <button id="clearBtn">Clear</button>
+        <button id="exportBtn">Export</button>
+      </div>
+    </header>
+
+    <div class="board">
+      <div>
+        <div id="grid" class="grid" aria-label="Sudoku grid"></div>
+<div id="numpad" style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap">
+  <button class="numkey" data-val="1">1</button>
+  <button class="numkey" data-val="2">2</button>
+  <button class="numkey" data-val="3">3</button>
+  <button class="numkey" data-val="4">4</button>
+  <button class="numkey" data-val="5">5</button>
+  <button class="numkey" data-val="6">6</button>
+  <button class="numkey" data-val="7">7</button>
+  <button class="numkey" data-val="8">8</button>
+  <button class="numkey" data-val="9">9</button>
+  <button class="numkey" data-val="0">Erase</button>
+</div>
+      </div>
+      <div class="sidebar">
+        <div class="panel">
+          <label style="font-size:13px;color:var(--muted)">Paste 81-char puzzle (use . for blanks)</label>
+          <textarea id="notepad" placeholder="................."></textarea>
+          <div style="display:flex;gap:8px;margin-top:8px"><button id="applyBtn">Apply</button><button id="importBtn">Import TXT</button></div>
+          <div class="status" id="status">Ready.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+// Simple, clean Sudoku: generator (fills and removes), solver (backtracking), fixed locks, editable cells colored
+const gridEl = document.getElementById('grid');
+const statusEl = document.getElementById('status');
+const notepad = document.getElementById('notepad');
+let board = Array(81).fill(0); // current board (0 empty)
+let fixed = Array(81).fill(false); // generated cells locked
+
+function updateStatus(t){ statusEl.textContent = t; }
+
+let activeCell = null;
+
+function createGrid(){
+  gridEl.innerHTML = '';
+  for(let r=0;r<9;r++){
+    for(let c=0;c<9;c++){
+      const idx = r*9+c;
+      const cell = document.createElement('div');
+      cell.className = 'cell';
+      if((c+1)%3===0 && c!==8) cell.classList.add('thick-col');
+      if((r+1)%3===0 && r!==8) cell.classList.add('thick-row');
+      cell.dataset.idx = idx;
+
+      const inp = document.createElement('input');
+      inp.type = 'text'; inp.maxLength = 1; inp.inputMode = 'numeric';
+      inp.dataset.idx = idx;
+      inp.addEventListener('input', onInput);
+      inp.addEventListener('keydown', onKeyDown);
+      inp.addEventListener('focus', ()=>{ activeCell = inp; });
+
+      cell.appendChild(inp);
+      gridEl.appendChild(cell);
+    }
+  }
+}
+
+function onInput(e){
+  const v = e.target.value.replace(/[^1-9]/g,'');
+  e.target.value = v;
+  const idx = Number(e.target.dataset.idx);
+  if(fixed[idx]) return; // don't change fixed
+  board[idx] = v ? Number(v) : 0;
+}
+
+function onKeyDown(e){
+  const idx = Number(e.target.dataset.idx);
+  if(e.key==='Backspace' || e.key==='Delete'){ if(!fixed[idx]){ board[idx]=0; e.target.value=''; } }
+}
+
+function updateGrid(){
+  const inputs = gridEl.querySelectorAll('input');
+  inputs.forEach(inp => {
+    const i = Number(inp.dataset.idx);
+    inp.value = board[i]||'';
+    const cell = inp.parentElement;
+    cell.classList.remove('editable','fixed');
+    if(fixed[i]){ cell.classList.add('fixed'); inp.readOnly = true; }
+    else { cell.classList.add('editable'); inp.readOnly = false; }
+  });
+}
+
+// Solver (backtracking)
+function isValid(b, pos, val){
+  const r = Math.floor(pos/9), c = pos%9;
+  for(let i=0;i<9;i++) if(b[r*9+i]===val) return false;
+  for(let i=0;i<9;i++) if(b[i*9+c]===val) return false;
+  const br = Math.floor(r/3)*3, bc = Math.floor(c/3)*3;
+  for(let dr=0;dr<3;dr++) for(let dc=0;dc<3;dc++) if(b[(br+dr)*9+(bc+dc)]===val) return false;
+  return true;
+}
+
+function solveBoard(b){
+  const arr = b.slice();
+  function solve(){
+    const pos = arr.findIndex(x=>x===0);
+    if(pos===-1) return true;
+    for(let n=1;n<=9;n++){
+      if(isValid(arr,pos,n)){
+        arr[pos]=n;
+        if(solve()) return true;
+        arr[pos]=0;
+      }
+    }
+    return false;
+  }
+  return solve() ? arr : null;
+}
+
+// Generate full solved board
+function generateFull(){
+  const arr = Array(81).fill(0);
+  const nums = [1,2,3,4,5,6,7,8,9];
+  function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+  function fill(pos=0){
+    if(pos>=81) return true;
+    const r=Math.floor(pos/9), c=pos%9;
+    if(arr[pos]!==0) return fill(pos+1);
+    const order = shuffle(nums.slice());
+    for(const n of order){
+      if(isValid(arr,pos,n)){
+        arr[pos]=n;
+        if(fill(pos+1)) return true;
+        arr[pos]=0;
+      }
+    }
+    return false;
+  }
+  fill(0);
+  return arr;
+}
+
+// Make puzzle by removing cells (no uniqueness guarantee for speed)
+function makePuzzle(clues=30){
+  const full = generateFull();
+  const p = full.slice();
+  const indices = Array.from({length:81},(_,i)=>i);
+  for(let i=indices.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [indices[i],indices[j]]=[indices[j],indices[i]]; }
+  let keep = clues;
+  for(const idx of indices){
+    if(keep<=0){ p[idx]=0; continue; }
+    keep--; // keep this one
+  }
+  return p;
+}
+
+// Number pad click handler
+const numpad = document.getElementById('numpad');
+numpad.addEventListener('click', e=>{
+  if(!e.target.classList.contains('numkey')) return;
+  if(!activeCell) return;
+  const idx = Number(activeCell.dataset.idx);
+  if(fixed[idx]) return;
+  const val = e.target.dataset.val;
+  if(val === '0'){ board[idx] = 0; activeCell.value=''; }
+  else { board[idx] = Number(val); activeCell.value = val; }
+});
+
+// Buttons
+createGrid(); updateGrid(); updateStatus('Ready.');
+
+document.getElementById('newBtn').addEventListener('click', ()=>{
+  updateStatus('Generating...');
+  setTimeout(()=>{
+    const clues = Number(document.getElementById('difficulty').value) || 30;
+    board = makePuzzle(clues);
+    fixed = board.map(x=> x? true:false);
+    updateGrid();
+    updateStatus('New puzzle generated.');
+  },50);
+});
+
+document.getElementById('solveBtn').addEventListener('click', ()=>{
+  const s = solveBoard(board.map(x=>x||0));
+  if(s){ board = s; fixed = board.map(x=> x? true:false); updateGrid(); updateStatus('Solved.'); }
+  else updateStatus('No solution found.');
+});
+
+document.getElementById('clearBtn').addEventListener('click', ()=>{ board = Array(81).fill(0); fixed = Array(81).fill(false); updateGrid(); updateStatus('Cleared.'); });
+
+document.getElementById('exportBtn').addEventListener('click', ()=>{
+  const txt = board.map(x=>x?x:'.').join('');
+  const blob = new Blob([txt],{type:'text/plain'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download='sudoku.txt'; a.click(); URL.revokeObjectURL(a.href);
+  updateStatus('Exported.');
+});
+
+document.getElementById('applyBtn').addEventListener('click', ()=>{
+  const txt = notepad.value.replace(/\s/g,'');
+  if(txt.length===81){
+    const arr = txt.split('').map(ch=> ch==='.'?0:parseInt(ch)||0);
+    board = arr; fixed = board.map(x=> x? true:false); updateGrid(); updateStatus('Applied.');
+  } else updateStatus('Paste exactly 81 chars (use . for blanks).');
+});
+
+// Simple import via file input
+const importBtn = document.getElementById('importBtn');
+importBtn.addEventListener('click', ()=>{
+  const inp = document.createElement('input'); inp.type='file'; inp.accept='text/plain';
+  inp.addEventListener('change',(e)=>{
+    const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload=()=>{ notepad.value = r.result; }; r.readAsText(f);
+  });
+  inp.click();
+});
+
+</script>
+</body>
+</html>
