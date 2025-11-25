@@ -247,7 +247,7 @@ function countSolutions(puzzle){
   let count=0; const arr = puzzle.slice();
   function dfs(){
     if(count>1) return;
-    const pos = arr.findIndex(x=>x===0);
+    const pos = arr.findindex(x=>x===0);
     if(pos===-1){ count++; return; }
     for(let n=1;n<=9;n++){
       if(isValidOn(arr,pos,n)){
@@ -438,7 +438,7 @@ document.head.appendChild(style);
 
 // back button handler
 document.getElementById('backBtn').addEventListener('click',()=>{
-  window.location.href = 'menu.html'; // change if you have a different menu page
+  window.location.href = 'index.html'; // change if you have a different index/menu page
 });
 
 // expose some functions for debugging in console
