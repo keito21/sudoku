@@ -456,14 +456,52 @@ function conflictsFor(idx,val){
   return [...new Set(out)];
 }
 
-function gameOver(){
-  
+  function gameOver(){
   gridEl.style.animation='flashRed 0.4s ease-in-out 3';
   setTimeout(()=> gridEl.style.animation='',1500);
-  for(let i=0;i<81;i++){ const inp=gridEl.querySelector(`.cell[data-idx="${i}"] input`); inp.readOnly=true; }
-  const solved=board.slice(); solveBoard(solved);
-  for(let i=0;i<81;i++){ if(board[i]!==solved[i]){ const inp=gridEl.querySelector(`.cell[data-idx="${i}"] input`); inp.value=solved[i]; inp.parentElement.style.color='#10b981'; }}
+
+  for(let i=0;i<81;i++){
+    const inp=gridEl.querySelector(`.cell[data-idx="${i}"] input`);
+    inp.readOnly=true;
+  }
+
+  const solved=board.slice(); 
+  solveBoard(solved);
+
+  for(let i=0;i<81;i++){
+    if(board[i]!==solved[i]){
+      const inp=gridEl.querySelector(`.cell[data-idx="${i}"] input`);
+      inp.value=solved[i];
+      inp.parentElement.style.color='#10b981';
+    }
+  }
+
   document.getElementById('gameOverModal').style.display = 'flex';
+
+  // ⭐ ADD AUTO-CLEAR BELOW
+  setTimeout(()=> {
+      board = Array(81).fill(0);
+      fixed = Array(81).fill(false);
+      notes = Array.from({length:81},()=>new Set());
+      mistakeCount = 0;
+      hintCount = 0;
+      document.getElementById('hints').textContent = hintCount;
+      updateHintStars();
+      updateGrid();
+      saveState();
+      updateStatus("Board auto-cleared after Game Over.");
+  }, 1200);
+}
+
+//BACK-UP EMERGENCY HAKDOG HAHAHA
+//function gameOver(){
+  
+  //gridEl.style.animation='flashRed 0.4s ease-in-out 3';
+  //setTimeout(()=> gridEl.style.animation='',1500);
+  //for(let i=0;i<81;i++){ const inp=gridEl.querySelector(`.cell[data-idx="${i}"] input`); inp.readOnly=true; }
+  //const solved=board.slice(); solveBoard(solved);
+  //for(let i=0;i<81;i++){ if(board[i]!==solved[i]){ const inp=gridEl.querySelector(`.cell[data-idx="${i}"] input`); inp.value=solved[i]; inp.parentElement.style.color='#10b981'; }}
+  //document.getElementById('gameOverModal').style.display = 'flex';
 }
 
 // quick backtracking solver
